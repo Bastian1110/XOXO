@@ -1,12 +1,13 @@
-from TicTacToe import TicTacToe
+from TicTacToe import TicTacToeMultiAgent
 from stable_baselines3 import DQN
+from ray.tune import register_env
 
 
 def random_play(episodes=100):
     total_time_steps = 0
     for e in range(episodes):
         print(f"Episode : {e} of {episodes}")
-        env = TicTacToe()
+        env = TicTacToeMultiAgent()
         obs, _ = env.reset()
         done = False
         time_steps = 0
@@ -27,7 +28,7 @@ def random_play(episodes=100):
 
 # Super usefull function that works for debugging Connect 4 functionality
 def manual_play():
-    env = TicTacToe()
+    env = TicTacToeMultiAgent()
     obs = env.reset()
     done = False
 
@@ -36,13 +37,14 @@ def manual_play():
         print("Actual Player :", env.current_player)
         print(obs)
         action = int(input("Enter your action: "))
-        obs, reward, done, _, info = env.step(action)
+        obs, reward, terminated, _, info = env.step({env.current_player : action})
+        done = terminated[env.current_player]
         print(f"Action: {action}, Reward: {reward}, Info: {info}")
 
 
 def random_play_agent(agent_path, episodes=100):
     model = DQN.load(agent_path)
-    env = TicTacToe()
+    env = TicTacToeMultiAgent()
 
     for e in range(episodes):
         print(f"Episode : {e} of {episodes}")
@@ -61,7 +63,7 @@ def random_play_agent(agent_path, episodes=100):
 
 def play_with_agent(agent_path):
     model = DQN.load(agent_path)
-    env = TicTacToe()
+    env = TicTacToeMultiAgent({})
     obs = env.reset()
     done = False
 
@@ -79,6 +81,6 @@ def play_with_agent(agent_path):
 
 
 # random_play(episodes=1000)
-# manual_play()
-play_with_agent("./models/XOXOv1.0")
+manual_play()
+# play_with_agent("./models/XOXOv1.0")
 # random_play_agent("./models/XOXOv1.0", episodes=1)

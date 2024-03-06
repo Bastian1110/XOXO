@@ -26,11 +26,21 @@ config = (
 )
 
 algo = PPO(config)
+algo.restore("./models/XOXOv1.0/")
 
-for i in range(100):
-    result = algo.train()
-    print(pretty_print(result))
+env = TicTacToeMultiAgent()
+obs = env.reset()
+done = False
 
-    if i % 10 == 0:
-        checkpoint = algo.save("./models/XOXOv1.0")
-        print("Checkpoint saved at", checkpoint)
+while not done:
+    print("Board :")
+    print("Actual Player :", env.current_player)
+    print(obs)
+    if env.current_player == 1:
+        action  = algo.compute_single_action(obs, policy_id="pol1")
+        print("Agent Action", action)
+    else:
+        action = int(input("Enter your action: "))
+    obs, reward, terminated, _, info = env.step({env.current_player : action})
+    done = terminated[env.current_player]
+    print(f"Action: {action}, Reward: {reward}, Info: {info}")
